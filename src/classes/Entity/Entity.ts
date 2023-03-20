@@ -43,6 +43,7 @@ import type {
   $PutBatchOptions,
 } from './types'
 import Table from '../Table'
+import { normalizeExpression } from '../../lib/normalizeExpression'
 
 class Entity<Name extends string = string,
   // Name is used to detect Entity instances (new Entity(...)) vs Entity type (const e: Entity = ...)
@@ -441,6 +442,12 @@ class Entity<Name extends string = string,
       } // end if names
     } // end if projections
 
+    const {
+      ExpressionAttributeNames: normalizedExpressionAttributeNames,
+    } = normalizeExpression(
+      { expressionNames: ExpressionAttributeNames },
+    )
+
     // Generate the payload
     const payload = Object.assign(
       {
@@ -452,7 +459,7 @@ class Entity<Name extends string = string,
           schema.keys.sortKey,
         ),
       },
-      ExpressionAttributeNames ? { ExpressionAttributeNames } : null,
+      normalizedExpressionAttributeNames ? { ExpressionAttributeNames: normalizedExpressionAttributeNames } : null,
       ProjectionExpression ? { ProjectionExpression } : null,
       consistent ? { ConsistentRead: consistent } : null,
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
@@ -1182,8 +1189,19 @@ class Entity<Name extends string = string,
       (DELETE.length > 0 ? ' DELETE ' + DELETE.join(', ') : '')
     ).trim()
 
-    // Merge attribute values
-    ExpressionAttributeValues = Object.assign(values, ExpressionAttributeValues)
+    const {
+      ExpressionAttributeNames: normalizedExpressionAttributeNames,
+      ExpressionAttributeValues: normalizedExpressionAttributeValues,
+    } = normalizeExpression({
+      expressionNames: {
+        ...names,
+        ...ExpressionAttributeNames,
+      },
+      expressionValues: {
+        ...values,
+        ...ExpressionAttributeValues,
+      },
+    })
 
     // Generate the payload
     const payload = Object.assign(
@@ -1191,10 +1209,12 @@ class Entity<Name extends string = string,
         TableName: _table!.name,
         Key,
         UpdateExpression: expression,
-        ExpressionAttributeNames: Object.assign(names, ExpressionAttributeNames),
+        ExpressionAttributeNames: normalizedExpressionAttributeNames,
       },
       typeof params === 'object' ? params : {},
-      !isEmpty(ExpressionAttributeValues) ? { ExpressionAttributeValues } : {},
+      !isEmpty(normalizedExpressionAttributeValues)
+        ? { ExpressionAttributeValues: normalizedExpressionAttributeValues }
+        : {},
       ConditionExpression ? { ConditionExpression } : {},
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
       metrics ? { ReturnItemCollectionMetrics: metrics.toUpperCase() } : null,
@@ -1472,6 +1492,14 @@ class Entity<Name extends string = string,
       schema.keys.sortKey,
     )
 
+    const {
+      ExpressionAttributeNames: normalizedExpressionAttributeNames,
+      ExpressionAttributeValues: normalizedExpressionAttributeValues,
+    } = normalizeExpression({
+      expressionNames: ExpressionAttributeNames,
+      expressionValues: ExpressionAttributeValues,
+    })
+
     // Generate the payload
     const payload = Object.assign(
       {
@@ -1495,8 +1523,10 @@ class Entity<Name extends string = string,
           return acc
         }, {}),
       },
-      ExpressionAttributeNames ? { ExpressionAttributeNames } : null,
-      !isEmpty(ExpressionAttributeValues) ? { ExpressionAttributeValues } : null,
+      normalizedExpressionAttributeNames ? { ExpressionAttributeNames: normalizedExpressionAttributeNames } : null,
+      !isEmpty(normalizedExpressionAttributeValues)
+        ? { ExpressionAttributeValues: normalizedExpressionAttributeValues }
+        : null,
       ConditionExpression ? { ConditionExpression } : null,
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
       metrics ? { ReturnItemCollectionMetrics: metrics.toUpperCase() } : null,
@@ -1614,11 +1644,11 @@ class Entity<Name extends string = string,
       return this as any
     }
 
-    if(table?.name === this?._table?.name) {
+    if (table?.name === this?._table?.name) {
       return this as any
     }
 
-    if(table != null && !table?.Table?.attributes) {
+    if (table != null && !table?.Table?.attributes) {
       error(`Entity ${this.name} was assigned an invalid table`)
     }
 
