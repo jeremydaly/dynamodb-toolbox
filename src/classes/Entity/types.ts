@@ -310,7 +310,7 @@ export type InferCompositePrimaryKey<
 export type Overlay = undefined | O.Object
 
 export type ConditionOrFilter<Attributes extends A.Key = A.Key> = (
-  | { attr: Attributes }
+  | { attr: A.Cast<Attributes, `${Attributes}`> }
   | { size: string }
 ) &
   O.Partial<{

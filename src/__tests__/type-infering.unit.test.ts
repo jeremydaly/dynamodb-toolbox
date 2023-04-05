@@ -745,6 +745,38 @@ describe('Entity', () => {
         // @ts-expect-error
         ;() => ent.update({ pk }, { conditions: { attr: 'sk', exists: true } })
       })
+
+      it('with conditions and returnValues', () => {
+        const updateParams = () => ent.update(
+          {
+            pk,
+          },
+          {
+            execute: false,
+            conditions: [
+              {
+                attr: 'pkMap1',
+                exists: true,
+              },
+            ],
+            returnValues: 'ALL_NEW',
+          },
+        )
+
+        type UpdateParams = A.Await<F.Return<typeof updateParams>>
+        type TestUpdateParams = A.Equals<
+          UpdateParams,
+          EntityItem<typeof ent>
+        >
+
+        const testUpdateParams: TestUpdateParams = 1
+        testUpdateParams
+      })
+
+      it('with invalid conditions attributes', () => {
+        // @ts-expect-error
+        ent.updateParams({ pk }, { conditions: { attr: 'nonExistentAttr', exists: true } })
+      })
     })
 
     describe('query method', () => {
@@ -1379,7 +1411,7 @@ describe('Entity', () => {
         ent.updateParams(item5)
         const updatePromise5 = () => ent.update(item5, { returnValues: 'UPDATED_OLD' })
         type UpdateItem5 = A.Await<ReturnType<typeof updatePromise5>>['Attributes']
-        type TestUpdateItem5 = A.Equals<UpdateItem5, ExpectedItem | undefined>
+        type TestUpdateItem5 = A.Equals<UpdateItem5, Omit<ExpectedItem, 'pk' | 'sk'> | undefined>
         const testUpdateItem5: TestUpdateItem5 = 1
         testUpdateItem5
 
