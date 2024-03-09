@@ -46,12 +46,13 @@ const unwrapAttributeValue = (value: NativeAttributeValue):  boolean | number | 
   return value
 }
 
-// Format item based on attribute defnition
+// Format item based on attribute definition
 export default () => (
   attributes: { [key: string]: PureAttributeDefinition },
   linked: Linked,
   item: any,
   include: string[] = [],
+  derived: string[] = []
 ) => {
   // TODO: Support nested maps?
   // TODO: include alias support?
@@ -60,7 +61,7 @@ export default () => (
   // Intialize validate type
   const validateType = validateTypes()
 
-  return Object.keys(item).reduce((acc, field) => {
+  let formattedItem = Object.keys(item).reduce((acc, field) => {
     const link =
       linked[field] ||
       (attributes[field] && attributes[field].alias && linked[attributes[field].alias!])
@@ -114,6 +115,16 @@ export default () => (
       [(attributes[field] && attributes[field].alias) || field]: transformedValue,
     })
   }, {})
+
+  formattedItem = derived.reduce(
+    (acc, derivedAttribute) => ({
+      ...acc,
+      [derivedAttribute]: attributes[derivedAttribute].derive?.(formattedItem)
+    }),
+    formattedItem
+  )
+
+  return formattedItem
 }
 
 function escapeRegExp(text: string) {
