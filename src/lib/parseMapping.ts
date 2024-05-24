@@ -132,11 +132,20 @@ export default (
           error(`'${prop}' must be a boolean, string, or array`)
         }
         break
+      case 'derive':
+        if (typeof config[prop] !== 'function') error(`'${prop}' must be a function`)
+        break
       default:
         error(`'${prop}' is not a valid property type`)
     }
   })
 
+  // Set derived and force no save
+  if (config.derive !== undefined) {
+    config.save = false
+    track.derived.push(field)
+  }
+    
   // Error on alias and map
   if (config.alias && config.map) error(`'${field}' cannot contain both an alias and a map`)
 
