@@ -7,18 +7,28 @@ import {
   PutOptions,
   DeleteOptions,
   UpdateOptions,
-  ConditionsOrFilters, AttributeMap,
+  ConditionsOrFilters,
+  AttributeMap,
+  InferEntityItem
 } from 'classes/Entity/types.js'
 
 import { Table, Entity } from '../index.js'
-import { ReturnConsumedCapacity, ReturnItemCollectionMetrics, Select } from '@aws-sdk/client-dynamodb'
+import {
+  ReturnConsumedCapacity,
+  ReturnItemCollectionMetrics,
+  Select
+} from '@aws-sdk/client-dynamodb'
 import {
   DeleteCommandInput,
   DeleteCommandOutput,
   GetCommandInput,
   GetCommandOutput,
-  PutCommandInput, PutCommandOutput, QueryCommandInput, ScanCommandInput,
-  UpdateCommandInput, UpdateCommandOutput,
+  PutCommandInput,
+  PutCommandOutput,
+  QueryCommandInput,
+  ScanCommandInput,
+  UpdateCommandInput,
+  UpdateCommandOutput
 } from '@aws-sdk/lib-dynamodb'
 import { DocumentClient } from './bootstrap.test.js'
 
@@ -76,7 +86,10 @@ type ExpectedWriteOpts<
   execute: boolean
   parse: boolean
   conditions: ConditionsOrFilters<Attributes>
-  metrics: ReturnItemCollectionMetrics | `${ReturnItemCollectionMetrics}` | Lowercase<ReturnItemCollectionMetrics>
+  metrics:
+    | ReturnItemCollectionMetrics
+    | `${ReturnItemCollectionMetrics}`
+    | Lowercase<ReturnItemCollectionMetrics>
   include: string[]
   returnValues: ReturnValues
   strictSchemaCheck: boolean
@@ -184,22 +197,28 @@ describe('Entity', () => {
       }).toThrow()
 
       // @ts-NOT-expect-error
-      expect(()=>new Entity({
-        name: entityName,
-        typeAlias: 'en',
-        attributes: { ...ck, en: 'string' },
-        table
-      } as const)).toThrow()
+      expect(
+        () =>
+          new Entity({
+            name: entityName,
+            typeAlias: 'en',
+            attributes: { ...ck, en: 'string' },
+            table
+          } as const)
+      ).toThrow()
 
       // 🔨 TOIMPROVE: Not sure this is expected behavior: overriding typeAlias doesn't throw
       // 🔨 TOIMPROVE: we could raise error here by preventing Aliases from attributes keys but it wreaks havoc with Readonly / Writable
       // @ts-NOT-expect-error
-      expect(()=>new Entity({
-        name: entityName,
-        typeAlias: 'en',
-        attributes: { ...ck, en: 'string' },
-        table
-      } as const)).toThrow()
+      expect(
+        () =>
+          new Entity({
+            name: entityName,
+            typeAlias: 'en',
+            attributes: { ...ck, en: 'string' },
+            table
+          } as const)
+      ).toThrow()
     })
   })
 
@@ -441,10 +460,7 @@ describe('Entity', () => {
         const item = { pk }
         const deletePromise = () => entNoParse.delete(item)
         type DeleteRawResponse = Awaited<ReturnType<typeof deletePromise>>
-        type TestDeleteRawResponse = A.Equals<
-          DeleteRawResponse,
-          DeleteCommandOutput
-        >
+        type TestDeleteRawResponse = A.Equals<DeleteRawResponse, DeleteCommandOutput>
         const testDeleteRawResponse: TestDeleteRawResponse = 1
         testDeleteRawResponse
       })
@@ -463,10 +479,7 @@ describe('Entity', () => {
         const item = { pk }
         const deletePromise = () => ent.delete(item, { parse: false })
         type DeleteRawResponse = Awaited<ReturnType<typeof deletePromise>>
-        type TestDeleteRawResponse = A.Equals<
-          DeleteRawResponse,
-          DeleteCommandOutput
-        >
+        type TestDeleteRawResponse = A.Equals<DeleteRawResponse, DeleteCommandOutput>
         const testDeleteRawResponse: TestDeleteRawResponse = 1
         testDeleteRawResponse
       })
@@ -685,10 +698,7 @@ describe('Entity', () => {
         const item = { pk }
         const updatePromise = () => entNoParse.update(item)
         type UpdateRawResponse = Awaited<ReturnType<typeof updatePromise>>
-        type TestUpdateRawResponse = A.Equals<
-          UpdateRawResponse,
-          UpdateCommandOutput
-        >
+        type TestUpdateRawResponse = A.Equals<UpdateRawResponse, UpdateCommandOutput>
         const testUpdateRawResponse: TestUpdateRawResponse = 1
         testUpdateRawResponse
       })
@@ -707,10 +717,7 @@ describe('Entity', () => {
         const item = { pk }
         const updatePromise = () => ent.update(item, { parse: false })
         type UpdateRawResponse = Awaited<ReturnType<typeof updatePromise>>
-        type TestUpdateRawResponse = A.Equals<
-          UpdateRawResponse,
-          UpdateCommandOutput
-        >
+        type TestUpdateRawResponse = A.Equals<UpdateRawResponse, UpdateCommandOutput>
         const testUpdateRawResponse: TestUpdateRawResponse = 1
         testUpdateRawResponse
       })
@@ -821,10 +828,7 @@ describe('Entity', () => {
         type QueryNextItems = Awaited<
           ReturnType<Exclude<Awaited<ReturnType<typeof queryPromise>>['next'], undefined>>
         >['Items']
-        type TestQueryNextItems = A.Equals<
-          QueryNextItems,
-          AttributeMap[] | undefined
-        >
+        type TestQueryNextItems = A.Equals<QueryNextItems, AttributeMap[] | undefined>
         const testQueryNextItems: TestQueryNextItems = 1
         testQueryNextItems
       })
@@ -853,10 +857,7 @@ describe('Entity', () => {
         type ScanNextItems = Awaited<
           ReturnType<Exclude<Awaited<ReturnType<typeof scanPromise>>['next'], undefined>>
         >['Items']
-        type TestScanNextItems = A.Equals<
-          ScanNextItems,
-          AttributeMap[] | undefined
-        >
+        type TestScanNextItems = A.Equals<ScanNextItems, AttributeMap[] | undefined>
         const testScanNextItems: TestScanNextItems = 1
         testScanNextItems
       })
@@ -871,10 +872,7 @@ describe('Entity', () => {
         type ScanNextItems = Awaited<
           ReturnType<Exclude<Awaited<ReturnType<typeof scanPromise>>['next'], undefined>>
         >['Items']
-        type TestScanNextItems = A.Equals<
-          ScanNextItems,
-          AttributeMap[] | undefined
-        >
+        type TestScanNextItems = A.Equals<ScanNextItems, AttributeMap[] | undefined>
         const testScanNextItems: TestScanNextItems = 1
         testScanNextItems
       })
@@ -898,10 +896,7 @@ describe('Entity', () => {
         type ScanNextItems = Awaited<
           ReturnType<Exclude<Awaited<ReturnType<typeof scanPromise>>['next'], undefined>>
         >['Items']
-        type TestScanNextItems = A.Equals<
-          ScanNextItems,
-          AttributeMap[] | undefined
-        >
+        type TestScanNextItems = A.Equals<ScanNextItems, AttributeMap[] | undefined>
         const testScanNextItems: TestScanNextItems = 1
         testScanNextItems
       })
@@ -916,10 +911,7 @@ describe('Entity', () => {
         type ScanNextItems = Awaited<
           ReturnType<Exclude<Awaited<ReturnType<typeof scanPromise>>['next'], undefined>>
         >['Items']
-        type TestScanNextItems = A.Equals<
-          ScanNextItems,
-          AttributeMap[] | undefined
-        >
+        type TestScanNextItems = A.Equals<ScanNextItems, AttributeMap[] | undefined>
         const testScanNextItems: TestScanNextItems = 1
         testScanNextItems
       })
@@ -1389,7 +1381,7 @@ describe('Entity', () => {
         ent.updateParams(item6)
         const updatePromise6 = () => ent.update(item6, { returnValues: 'UPDATED_NEW' })
         type UpdateItem6 = Awaited<ReturnType<typeof updatePromise6>>['Attributes']
-        type TestUpdateItem6 = A.Equals<UpdateItem6, ExpectedItem | undefined>
+        type TestUpdateItem6 = A.Equals<UpdateItem6, Pick<EntityItem<typeof ent>, ExpectedItem | undefined>>
         const testUpdateItem6: TestUpdateItem6 = 1
         testUpdateItem6
 
@@ -1886,7 +1878,9 @@ describe('Entity', () => {
       name: 'TestEntity_OverlayedMethods',
       attributes: {
         pk: { type: 'string', partitionKey: true, hidden: true },
-        sk: { type: 'string', sortKey: true, hidden: true, default: sk }
+        sk: { type: 'string', sortKey: true, hidden: true, default: sk },
+        string: { type: 'string'},
+        number: { type: 'number' }
       },
       table
     } as const)
@@ -2091,6 +2085,142 @@ describe('Entity', () => {
         type TestUpdateItem = A.Equals<UpdateItem, MethodItemOverlay | undefined>
         const testUpdateItem: TestUpdateItem = 1
         testUpdateItem
+      })
+
+      it('Attributes match full EntityItem (excl. hidden props) when returnValues is ALL_NEW', () => {
+        const updatePromise = () =>
+          ent.update(
+            {
+              pk,
+              string: 'some-string'
+            },
+            {
+              execute: true,
+              conditions: [
+                {
+                  attr: 'string',
+                  exists: true
+                }
+              ],
+              returnValues: 'ALL_NEW'
+            }
+          )
+
+        type UpdateItem = Awaited<ReturnType<typeof updatePromise>>['Attributes']
+        type TestUpdateParams = A.Equals<UpdateItem, EntityItem<typeof ent> | undefined>
+
+        const testUpdateParams: TestUpdateParams = 1
+        testUpdateParams
+      })
+
+      it('Attributes match full EntityItem (excl. hidden props) when returnValues is ALL_OLD', () => {
+        const updatePromise = () =>
+          ent.update(
+            {
+              pk,
+              string: 'some-string'
+            },
+            {
+              execute: true,
+              conditions: [
+                {
+                  attr: 'string',
+                  exists: true
+                }
+              ],
+              returnValues: 'ALL_OLD'
+            }
+          )
+
+        type UpdateItem = Awaited<ReturnType<typeof updatePromise>>['Attributes']
+        type TestUpdateParams = A.Equals<UpdateItem, EntityItem<typeof ent> | undefined>
+
+        const testUpdateParams: TestUpdateParams = 1
+        testUpdateParams
+      })
+
+      it('Attributes match only provided attributes when returnValues is UPDATED_NEW', () => {
+        const updatePromise = () =>
+          ent.update(
+            {
+              pk,
+              string: 'some-string'
+            },
+            {
+              execute: true,
+              conditions: [
+                {
+                  attr: 'string',
+                  exists: true
+                }
+              ],
+              returnValues: 'UPDATED_NEW'
+            }
+          )
+
+        type UpdateItem = Awaited<ReturnType<typeof updatePromise>>['Attributes']
+        type TestUpdateParams = A.Equals<UpdateItem, Pick<EntityItem<typeof ent>, 'string' | 'entity' | 'modified' | 'created'> | undefined>
+
+        const testUpdateParams: TestUpdateParams = 1
+        testUpdateParams
+      })
+
+      it('Attributes match only provided attributes when returnValues is UPDATED_OLD', () => {
+        const updatePromise = () =>
+          ent.update(
+            {
+              pk,
+              string: 'some-string'
+            },
+            {
+              execute: true,
+              conditions: [
+                {
+                  attr: 'string',
+                  exists: true
+                }
+              ],
+              returnValues: 'UPDATED_OLD'
+            }
+          )
+
+        type UpdateItem = Awaited<ReturnType<typeof updatePromise>>['Attributes']
+        type TestUpdateParams = A.Equals<UpdateItem, Pick<EntityItem<typeof ent>, 'string' | 'entity' | 'modified' | 'created'> | undefined>
+
+        const testUpdateParams: TestUpdateParams = 1
+        testUpdateParams
+      })
+
+      it('Attributes should not exist when returnValues is NONE', () => {
+        const updatePromise = () =>
+          ent.update(
+            {
+              pk,
+              string: 'some-string'
+            },
+            {
+              execute: true,
+              conditions: [
+                {
+                  attr: 'string',
+                  exists: true
+                }
+              ],
+              returnValues: 'NONE'
+            }
+          )
+
+        // @ts-expect-error - Attributes should not exist
+        type UpdateItem = Awaited<ReturnType<typeof updatePromise>>['Attributes']
+      })
+
+      it('throws when condition attribute is not valid', () => {
+        expect(() =>
+          // @ts-expect-error
+          ent.updateParams({ pk }, { conditions: { attr: 'nonExistentAttr', exists: true } })
+        ).toThrowErrorMatchingInlineSnapshot(
+          `"'nonExistentAttr' is not a valid attribute within the given entity/table."`
+        )
       })
     })
 
@@ -2572,7 +2702,9 @@ describe('Entity', () => {
 
           const allOldUpdatePromise = () =>
             ent.update({ ...ck0, num0 }, { returnValues: 'ALL_OLD' })
-          type AllOldUpdateAttributes = Awaited<ReturnType<typeof allOldUpdatePromise>>['Attributes']
+          type AllOldUpdateAttributes = Awaited<
+            ReturnType<typeof allOldUpdatePromise>
+          >['Attributes']
           type AssertAllOldUpdateAttributes = A.Equals<
             AllOldUpdateAttributes,
             EntityItemOverlay | undefined
@@ -2582,7 +2714,9 @@ describe('Entity', () => {
 
           const allNewUpdatePromise = () =>
             ent.update({ ...ck0, num0 }, { returnValues: 'ALL_NEW' })
-          type AllNewUpdateAttributes = Awaited<ReturnType<typeof allNewUpdatePromise>>['Attributes']
+          type AllNewUpdateAttributes = Awaited<
+            ReturnType<typeof allNewUpdatePromise>
+          >['Attributes']
           type AssertAllNewUpdateAttributes = A.Equals<
             AllNewUpdateAttributes,
             EntityItemOverlay | undefined
@@ -2726,7 +2860,7 @@ describe('Entity', () => {
           name: 'TestEnity_WithTable',
           attributes: {
             pk: { partitionKey: true },
-            sk: { sortKey: true },
+            sk: { sortKey: true }
           },
           table
         })
@@ -2752,9 +2886,9 @@ describe('Entity', () => {
           name: 'Entity_WithNewTable',
           attributes: {
             pk: { partitionKey: true },
-            sk: { sortKey: true },
+            sk: { sortKey: true }
           },
-          table,
+          table
         })
 
         const entityWithNewTable = entity.setTable(newTable)

@@ -7,7 +7,7 @@ import {
   PutCommand,
   PutCommandInput, PutCommandOutput,
   UpdateCommand,
-  UpdateCommandInput, UpdateCommandOutput,
+  UpdateCommandInput, UpdateCommandOutput
 } from '@aws-sdk/lib-dynamodb'
 import type {
   WriteRequest,
@@ -33,7 +33,7 @@ import parseProjections from '../../lib/projectionBuilder.js'
 import { error, transformAttr, isEmpty, If, FirstDefined, Compute } from '../../lib/utils.js'
 import {
   ATTRIBUTE_VALUES_LIST_DEFAULT_KEY,
-  ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE,
+  ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE
 } from '../../constants.js'
 import type { ScanOptions, TableDef } from '../Table/types.js'
 import type {
@@ -61,7 +61,7 @@ import type {
   UpdateOptionsReturnValues,
   Writable,
   Readonly,
-  $PutBatchOptions, AttributeMap,
+  $PutBatchOptions, AttributeMap
 } from './types.js'
 
 class Entity<Name extends string = string,
@@ -138,7 +138,7 @@ class Entity<Name extends string = string,
       ModifiedAlias,
       TypeAlias,
       TypeHidden,
-      ReadonlyAttributeDefinitions>,
+      ReadonlyAttributeDefinitions>
   ) {
     // Sanity check the entity object
     if (entity?.constructor !== Object) {
@@ -151,7 +151,7 @@ class Entity<Name extends string = string,
     // to mutate the original table instance
     entity = {
       ...cloneDeep.default(entitySchemaWithoutTable),
-      ...(table ? { table } : {}),
+      ...(table ? { table } : {})
     }
 
     const {
@@ -160,7 +160,7 @@ class Entity<Name extends string = string,
       createdAlias = 'created',
       modifiedAlias = 'modified',
       typeAlias = 'entity',
-      typeHidden = false,
+      typeHidden = false
     } = entity
     this.attributes = attributes
     this.timestamps = timestamps as Timestamps
@@ -262,7 +262,7 @@ class Entity<Name extends string = string,
 
     if (Array.isArray(data)) {
       return data.map(item =>
-        formatItem()(schema.attributes, linked, item, include),
+        formatItem()(schema.attributes, linked, item, include)
       ) as any
     } else {
       return formatItem()(schema.attributes, linked, data, include) as any
@@ -285,7 +285,7 @@ class Entity<Name extends string = string,
     Parse extends boolean | undefined = undefined>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
     options: $GetOptions<ResponseAttributes, Execute, Parse> = {},
-    params: Partial<GetCommandInput> = {},
+    params: Partial<GetCommandInput> = {}
   ): Promise<If<B.Not<ShouldExecute<Execute, AutoExecute>>,
     GetCommandInput,
     If<B.Not<ShouldParse<Parse, AutoParse>>,
@@ -326,11 +326,11 @@ class Entity<Name extends string = string,
    * @param {object} item - The keys from item you wish to get.
    */
   getBatch<MethodCompositeKeyOverlay extends Overlay = undefined>(
-    item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
+    item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>
   ) {
     return {
       Table: this.table,
-      Key: this.getParams<undefined, MethodCompositeKeyOverlay>(item).Key,
+      Key: this.getParams<undefined, MethodCompositeKeyOverlay>(item).Key
     }
   }
 
@@ -346,7 +346,7 @@ class Entity<Name extends string = string,
       keyof MethodItemOverlay>,
     ResponseAttributes extends ShownItemAttributes = ShownItemAttributes>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
-    options: { attributes?: ResponseAttributes[] } = {},
+    options: { attributes?: ResponseAttributes[] } = {}
   ): {
     Entity: Entity<Name,
       EntityItemOverlay,
@@ -386,7 +386,7 @@ class Entity<Name extends string = string,
     // Return in transaction format
     return {
       Entity: this,
-      Get: payload,
+      Get: payload
     }
   }
 
@@ -406,7 +406,7 @@ class Entity<Name extends string = string,
     Parse extends boolean | undefined = undefined>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
     options: $GetOptions<ResponseAttributes, Execute, Parse> = {},
-    params: Partial<GetCommandInput> = {},
+    params: Partial<GetCommandInput> = {}
   ): GetCommandInput {
     // Extract schema and merge defaults
     const { schema, defaults, linked, _table } = this
@@ -467,14 +467,14 @@ class Entity<Name extends string = string,
           data,
           schema.attributes,
           schema.keys.partitionKey,
-          schema.keys.sortKey,
-        ),
+          schema.keys.sortKey
+        )
       },
       ExpressionAttributeNames ? { ExpressionAttributeNames } : null,
       ProjectionExpression ? { ProjectionExpression } : null,
       consistent ? { ConsistentRead: consistent } : null,
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
-      typeof params === 'object' ? params : {},
+      typeof params === 'object' ? params : {}
     )
 
     return payload
@@ -497,7 +497,7 @@ class Entity<Name extends string = string,
     Parse extends boolean | undefined = undefined>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
     options: RawDeleteOptions<ResponseAttributes, ReturnValues, Execute, Parse> = {},
-    params: Partial<DeleteCommandInput> = {},
+    params: Partial<DeleteCommandInput> = {}
   ): Promise<If<B.Not<ShouldExecute<Execute, AutoExecute>>,
     DeleteCommandInput,
     If<B.Not<ShouldParse<Parse, AutoParse>>,
@@ -545,7 +545,7 @@ class Entity<Name extends string = string,
    *   https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html
    */
   deleteBatch<MethodCompositeKeyOverlay extends Overlay = undefined>(
-    item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
+    item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>
   ): { [key: string]: WriteRequest } {
     const payload = this.deleteParams<undefined, MethodCompositeKeyOverlay>(item)
     return { [payload.TableName!]: { DeleteRequest: { Key: payload.Key } } }
@@ -567,7 +567,7 @@ class Entity<Name extends string = string,
     ResponseAttributes extends ItemAttributes = ItemAttributes>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
     options: TransactionOptions<ResponseAttributes> = {},
-    params?: Partial<DeleteCommandInput>,
+    params?: Partial<DeleteCommandInput>
   ): { Delete: Delete } {
     // Destructure options to check for extraneous arguments
     const {
@@ -615,7 +615,7 @@ class Entity<Name extends string = string,
     Parse extends boolean | undefined = undefined>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
     options: RawDeleteOptions<ResponseAttributes, ReturnValues, Execute, Parse> = {},
-    params: Partial<DeleteCommandInput> = {},
+    params: Partial<DeleteCommandInput> = {}
   ): DeleteCommandInput {
     // Extract schema and merge defaults
     const { schema, defaults, linked, _table } = this
@@ -623,7 +623,7 @@ class Entity<Name extends string = string,
       schema.attributes,
       linked,
       Object.assign({}, defaults, item),
-      true,
+      true
     )
 
     const {
@@ -692,8 +692,8 @@ class Entity<Name extends string = string,
           data,
           schema.attributes,
           schema.keys.partitionKey,
-          schema.keys.sortKey,
-        ),
+          schema.keys.sortKey
+        )
       },
       ExpressionAttributeNames ? { ExpressionAttributeNames } : null,
       !isEmpty(ExpressionAttributeValues) ? { ExpressionAttributeValues } : null,
@@ -701,7 +701,7 @@ class Entity<Name extends string = string,
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
       metrics ? { ReturnItemCollectionMetrics: metrics.toUpperCase() } : null,
       returnValues ? { ReturnValues: returnValues.toUpperCase() } : null,
-      typeof params === 'object' ? params : {},
+      typeof params === 'object' ? params : {}
     )
 
     return payload
@@ -721,19 +721,26 @@ class Entity<Name extends string = string,
     ReturnValues extends UpdateOptionsReturnValues = 'NONE',
     Execute extends boolean | undefined = undefined,
     Parse extends boolean | undefined = undefined,
-    StrictSchemaCheck extends boolean | undefined = true>(
-    item: UpdateItem<MethodItemOverlay,
+    StrictSchemaCheck extends boolean | undefined = true,
+    ItemUpdate extends UpdateItem<MethodItemOverlay,
       EntityItemOverlay,
       CompositePrimaryKey,
       Item,
       Attributes,
-      StrictSchemaCheck>,
+      StrictSchemaCheck> = UpdateItem<MethodItemOverlay,
+      EntityItemOverlay,
+      CompositePrimaryKey,
+      Item,
+      Attributes,
+      StrictSchemaCheck>
+  >(
+    item: ItemUpdate,
     options: $UpdateOptions<ResponseAttributes,
       ReturnValues,
       Execute,
       Parse,
       StrictSchemaCheck> = {},
-    params: UpdateCustomParams = {},
+    params: UpdateCustomParams = {}
   ): Promise<If<B.Not<ShouldExecute<Execute, AutoExecute>>,
     UpdateCommandInput,
     If<B.Not<ShouldParse<Parse, AutoParse>>,
@@ -743,10 +750,28 @@ class Entity<Name extends string = string,
         O.Update<UpdateCommandOutput,
           'Attributes',
           If<B.Or<A.Equals<ReturnValues, 'ALL_OLD'>, A.Equals<ReturnValues, 'ALL_NEW'>>,
-            FirstDefined<[O.Pick<Item, ResponseAttributes>, EntityItemOverlay, MethodItemOverlay]>,
+            FirstDefined<[MethodItemOverlay, EntityItemOverlay, Pick<Item, Attributes['shown']>]>,
             If<B.Or<A.Equals<ReturnValues, 'UPDATED_OLD'>,
               A.Equals<ReturnValues, 'UPDATED_NEW'>>,
-              FirstDefined<[MethodItemOverlay, O.Pick<Item, ResponseAttributes>, EntityItemOverlay]>>>>>>>> {
+              FirstDefined<[
+                MethodItemOverlay,
+                EntityItemOverlay,
+                // get all non-hidden attributes and exclude primary key
+                  Omit<
+                    O.Pick<O.Pick<Item, keyof ItemUpdate>, Attributes['shown']>,
+                    keyof CompositePrimaryKey
+                  > & (Timestamps extends true ?
+                  {
+                    [K in CreatedAlias | ModifiedAlias]: string;
+                  }
+                  : {}
+                  ) &
+                  (
+                    TypeHidden extends true ?
+                      { } :
+                    { [K in TypeAlias]: string }
+                  ) | undefined
+              ]>>>>>>>> {
     // Generate the payload
     const updateParams = this.updateParams<MethodItemOverlay,
       ShownItemAttributes,
@@ -760,7 +785,7 @@ class Entity<Name extends string = string,
       return updateParams as any
     }
 
-    const output = await this.DocumentClient.send( new UpdateCommand(updateParams))
+    const output = await this.DocumentClient.send(new UpdateCommand(updateParams))
 
     if (!shouldParse(options.parse, this.autoParse)) {
       return output as any
@@ -798,7 +823,7 @@ class Entity<Name extends string = string,
       Attributes,
       StrictSchemaCheck>,
     options: TransactionOptions<ResponseAttributes, StrictSchemaCheck> = {},
-    params?: UpdateCustomParams,
+    params?: UpdateCustomParams
   ): { Update: Update } {
     // Destructure options to check for extraneous arguments
     const {
@@ -861,7 +886,7 @@ class Entity<Name extends string = string,
       ExpressionAttributeNames = {},
       ExpressionAttributeValues = {},
       ...params
-    }: UpdateCustomParams = {},
+    }: UpdateCustomParams = {}
   ): UpdateCommandInput {
     // Validate operation types
     if (!Array.isArray(SET)) error('SET must be an array')
@@ -892,7 +917,7 @@ class Entity<Name extends string = string,
       schema.attributes,
       linked,
       Object.assign({}, defaults, item),
-      shouldFilterUnmappedFields,
+      shouldFilterUnmappedFields
     )
 
     // Extract valid options
@@ -933,11 +958,11 @@ class Entity<Name extends string = string,
       returnValues !== undefined &&
       (typeof returnValues !== 'string' ||
         !['NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', 'UPDATED_NEW'].includes(
-          returnValues.toUpperCase(),
+          returnValues.toUpperCase()
         ))
     ) {
       error(
-        `'returnValues' must be one of 'NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', OR 'UPDATED_NEW'`,
+        `'returnValues' must be one of 'NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', OR 'UPDATED_NEW'`
       )
     }
 
@@ -965,8 +990,8 @@ class Entity<Name extends string = string,
         error(
           `'${field}${
             this.schema.attributes[field].alias ? `/${this.schema.attributes[field].alias}` : ''
-          }' is a required field`,
-        ),
+          }' is a required field`
+        )
     )
 
     // Get partition and sort keys
@@ -974,7 +999,7 @@ class Entity<Name extends string = string,
       data,
       schema.attributes,
       schema.keys.partitionKey,
-      schema.keys.sortKey,
+      schema.keys.sortKey
     )
 
     // Init names and values
@@ -1001,7 +1026,7 @@ class Entity<Name extends string = string,
             error(
               `'${attrs[i]}' is the ${
                 schema.attributes[attrs[i]].partitionKey === true ? 'partitionKey' : 'sortKey'
-              } and cannot be removed`,
+              } and cannot be removed`
             )
           }
           // Verify attribute is not required
@@ -1067,12 +1092,12 @@ class Entity<Name extends string = string,
         } else if (mapping.type === 'list' && (data[field]?.$append || data[field]?.$prepend)) {
           if (data[field].$append) {
             SET.push(
-              `#${field} = list_append(if_not_exists(#${field}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}) ,:${field})`,
+              `#${field} = list_append(if_not_exists(#${field}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}) ,:${field})`
             )
             values[`:${field}`] = validateType(mapping, field, data[field].$append)
           } else {
             SET.push(
-              `#${field} = list_append(:${field}, if_not_exists(#${field}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}))`,
+              `#${field} = list_append(:${field}, if_not_exists(#${field}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}))`
             )
             values[`:${field}`] = validateType(mapping, field, data[field].$prepend)
           }
@@ -1116,24 +1141,24 @@ class Entity<Name extends string = string,
                   values[`:${value}`] = input.$add
                 } else if (input.$append) {
                   SET.push(
-                    `${path} = list_append(if_not_exists(${path}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}), :${value})`,
+                    `${path} = list_append(if_not_exists(${path}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}), :${value})`
                   )
 
                   values[`:${value}`] = input.$append
                   // add default list value
                   values[
                     `:${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}`
-                  ] = ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE
+                    ] = ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE
                 } else if (input.$prepend) {
                   SET.push(
-                    `${path} = list_append(:${value}, if_not_exists(${path}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}))`,
+                    `${path} = list_append(:${value}, if_not_exists(${path}, :${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}))`
                   )
 
                   values[`:${value}`] = input.$prepend
                   // add default list value
                   values[
                     `:${ATTRIBUTE_VALUES_LIST_DEFAULT_KEY}`
-                  ] = ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE
+                    ] = ATTRIBUTE_VALUES_LIST_DEFAULT_VALUE
                 } else if (input.$remove) {
                   // console.log('REMOVE:',input.$remove);
                   input.$remove.forEach((i: number) => {
@@ -1152,7 +1177,7 @@ class Entity<Name extends string = string,
                   Object.keys(input.$set).forEach(i => {
                     if (String(parseInt(i)) !== i) {
                       error(
-                        `Properties must be numeric to update specific list items in '${field}'`,
+                        `Properties must be numeric to update specific list items in '${field}'`
                       )
                     }
                     SET.push(`${path}[${i}] = :${value}_${i}`)
@@ -1182,7 +1207,7 @@ class Entity<Name extends string = string,
               // @ts-ignore
               mapping.default !== undefined && item[mapping.alias || field] === undefined && !mapping.onUpdate
                 ? `#${field} = if_not_exists(#${field},:${field})`
-                : `#${field} = :${field}`,
+                : `#${field} = :${field}`
             )
             // Add names and values
             names[`#${field}`] = field
@@ -1209,14 +1234,14 @@ class Entity<Name extends string = string,
         TableName: _table!.name,
         Key,
         UpdateExpression: expression,
-        ExpressionAttributeNames: Object.assign(names, ExpressionAttributeNames),
+        ExpressionAttributeNames: Object.assign(names, ExpressionAttributeNames)
       },
       typeof params === 'object' ? params : {},
       !isEmpty(ExpressionAttributeValues) ? { ExpressionAttributeValues } : {},
       ConditionExpression ? { ConditionExpression } : {},
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
       metrics ? { ReturnItemCollectionMetrics: metrics.toUpperCase() } : null,
-      returnValues ? { ReturnValues: returnValues.toUpperCase() } : null,
+      returnValues ? { ReturnValues: returnValues.toUpperCase() } : null
     )
 
     return payload
@@ -1241,7 +1266,7 @@ class Entity<Name extends string = string,
       Attributes,
       StrictSchemaCheck>,
     options: $PutOptions<ResponseAttributes, ReturnValues, Execute, Parse, StrictSchemaCheck> = {},
-    params: Partial<PutCommandInput> = {},
+    params: Partial<PutCommandInput> = {}
   ): Promise<If<B.Not<ShouldExecute<Execute, AutoExecute>>,
     PutCommandInput,
     If<B.Not<ShouldParse<Parse, AutoParse>>,
@@ -1303,7 +1328,7 @@ class Entity<Name extends string = string,
       Item,
       Attributes,
       StrictSchemaCheck>,
-    options: $PutBatchOptions<Execute, Parse, StrictSchemaCheck> = {},
+    options: $PutBatchOptions<Execute, Parse, StrictSchemaCheck> = {}
   ): { [key: string]: WriteRequest } {
     const payload = this.putParams<MethodItemOverlay,
       ShownItemAttributes,
@@ -1336,7 +1361,7 @@ class Entity<Name extends string = string,
       Attributes,
       StrictSchemaCheck>,
     options: TransactionOptions<ResponseAttributes, StrictSchemaCheck> = {},
-    params?: Partial<PutCommandInput>,
+    params?: Partial<PutCommandInput>
   ): { Put: Put } {
     // Destructure options to check for extraneous arguments
     const {
@@ -1387,7 +1412,7 @@ class Entity<Name extends string = string,
       Attributes,
       StrictSchemaCheck>,
     options: $PutOptions<ResponseAttributes, ReturnValues, Execute, Parse, StrictSchemaCheck> = {},
-    params: Partial<PutCommandInput> = {},
+    params: Partial<PutCommandInput> = {}
   ): PutCommandInput {
     // Extract schema and defaults
     const { schema, defaults, required, linked, _table } = this
@@ -1402,7 +1427,7 @@ class Entity<Name extends string = string,
       schema.attributes,
       linked,
       Object.assign({}, defaults, item),
-      shouldFilterUnmappedFields,
+      shouldFilterUnmappedFields
     )
 
     // Extract valid options
@@ -1443,11 +1468,11 @@ class Entity<Name extends string = string,
       returnValues !== undefined &&
       (typeof returnValues !== 'string' ||
         !['NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', 'UPDATED_NEW'].includes(
-          returnValues.toUpperCase(),
+          returnValues.toUpperCase()
         ))
     ) {
       error(
-        `'returnValues' must be one of 'NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', or 'UPDATED_NEW'`,
+        `'returnValues' must be one of 'NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', or 'UPDATED_NEW'`
       )
     }
 
@@ -1477,8 +1502,8 @@ class Entity<Name extends string = string,
         error(
           `'${field}${
             this.schema.attributes[field].alias ? `/${this.schema.attributes[field].alias}` : ''
-          }' is a required field`,
-        ),
+          }' is a required field`
+        )
     )
 
     // Checks for partition and sort keys
@@ -1486,7 +1511,7 @@ class Entity<Name extends string = string,
       data,
       schema.attributes,
       schema.keys.partitionKey,
-      schema.keys.sortKey,
+      schema.keys.sortKey
     )
 
     // Generate the payload
@@ -1510,7 +1535,7 @@ class Entity<Name extends string = string,
             return Object.assign(acc, { [field]: value })
           }
           return acc
-        }, {}),
+        }, {})
       },
       ExpressionAttributeNames ? { ExpressionAttributeNames } : null,
       !isEmpty(ExpressionAttributeValues) ? { ExpressionAttributeValues } : null,
@@ -1518,7 +1543,7 @@ class Entity<Name extends string = string,
       capacity ? { ReturnConsumedCapacity: capacity.toUpperCase() } : null,
       metrics ? { ReturnItemCollectionMetrics: metrics.toUpperCase() } : null,
       returnValues ? { ReturnValues: returnValues.toUpperCase() } : null,
-      typeof params === 'object' ? params : {},
+      typeof params === 'object' ? params : {}
     )
 
     return payload
@@ -1539,7 +1564,7 @@ class Entity<Name extends string = string,
       keyof MethodItemOverlay>,
     ResponseAttributes extends ItemAttributes = ItemAttributes>(
     item: FirstDefined<[MethodCompositeKeyOverlay, EntityCompositeKeyOverlay, CompositePrimaryKey]>,
-    options: TransactionOptions<ResponseAttributes> = {},
+    options: TransactionOptions<ResponseAttributes> = {}
   ): { ConditionCheck: ConditionCheck } {
     // Destructure options to check for extraneous arguments
     const {
@@ -1584,7 +1609,7 @@ class Entity<Name extends string = string,
     Parse extends boolean | undefined = undefined>(
     pk: any,
     options: EntityQueryOptions<ResponseAttributes, FiltersAttributes, Execute, Parse> = {},
-    params: Partial<QueryInput> = {},
+    params: Partial<QueryInput> = {}
   ) {
     if (!this.table) {
       throw new Error('Entity table is not defined')
@@ -1632,11 +1657,11 @@ class Entity<Name extends string = string,
       return this as any
     }
 
-    if(table?.name === this?._table?.name) {
+    if (table?.name === this?._table?.name) {
       return this as any
     }
 
-    if(table != null && !table?.Table?.attributes) {
+    if (table != null && !table?.Table?.attributes) {
       error(`Entity ${this.name} was assigned an invalid table`)
     }
 
@@ -1656,13 +1681,13 @@ class Entity<Name extends string = string,
         type: 'string',
         hidden: this.typeHidden,
         alias: this._etAlias,
-        default: this.name,
+        default: this.name
       }
       this.defaults[table.Table.entityField] = this.name
       this.schema.attributes[this._etAlias] = {
         type: 'string',
         map: table.Table.entityField,
-        default: this.name,
+        default: this.name
       }
       this.defaults[this._etAlias] = this.name
     }
